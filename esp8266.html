@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP8266 NodeMCU — เอกสารอ้างอิง</title>
+<style>
+  :root {
+    --blue-900: #0b3d91;
+    --blue-700: #1565c0;
+    --blue-500: #2196f3;
+    --blue-100: #e3f2fd;
+    --blue-50: #f4faff;
+    --white: #ffffff;
+    --text-dark: #10233f;
+    --text-muted: #5c7290;
+    --code-bg: #0d1b2e;
+    --warn-bg: #fff4e5;
+    --warn-border: #ffb74d;
+    --danger: #d32f2f;
+    --shadow: 0 10px 30px rgba(21, 101, 192, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-dark);
+    background: var(--white);
+    line-height: 1.65;
+  }
+
+  a { text-decoration: none; color: inherit; }
+
+  /* Top bar */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--blue-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    color: var(--blue-900);
+  }
+
+  .brand-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-900));
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  .topbar .back {
+    color: var(--blue-700);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .topbar .back:hover { color: var(--blue-900); }
+
+  /* Layout */
+  .layout {
+    display: flex;
+    align-items: flex-start;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+
+  .sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 66px;
+    height: calc(100vh - 66px);
+    overflow-y: auto;
+    padding: 32px 16px;
+    border-right: 1px solid var(--blue-100);
+  }
+
+  .sidebar h5 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin: 18px 8px 8px;
+  }
+
+  .sidebar h5:first-child { margin-top: 0; }
+
+  .sidebar ul { list-style: none; }
+
+  .sidebar a {
+    display: block;
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .sidebar a:hover {
+    background: var(--blue-50);
+    color: var(--blue-700);
+  }
+
+  .content {
+    flex: 1;
+    padding: 40px 40px 80px;
+    min-width: 0;
+  }
+
+  /* Hero */
+  .doc-hero {
+    background: linear-gradient(160deg, var(--blue-700), var(--blue-900));
+    color: var(--white);
+    border-radius: 20px;
+    padding: 40px 36px;
+    margin-bottom: 44px;
+    box-shadow: var(--shadow);
+  }
+
+  .doc-hero .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .doc-hero h1 {
+    font-size: 1.9rem;
+    margin-bottom: 12px;
+  }
+
+  .doc-hero p {
+    color: rgba(255,255,255,0.85);
+    max-width: 680px;
+    font-size: 0.98rem;
+  }
+
+  .doc-hero p strong { color: var(--white); }
+
+  /* Sections */
+  section {
+    margin-bottom: 56px;
+    scroll-margin-top: 84px;
+  }
+
+  section h2 {
+    font-size: 1.4rem;
+    color: var(--blue-900);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  section h2::before {
+    content: "";
+    width: 6px;
+    height: 22px;
+    background: linear-gradient(180deg, var(--blue-500), var(--blue-900));
+    border-radius: 4px;
+  }
+
+  section h3 {
+    font-size: 1.1rem;
+    color: var(--blue-700);
+    margin: 24px 0 10px;
+  }
+
+  section > p, section > .lead {
+    color: var(--text-muted);
+    margin-bottom: 18px;
+    max-width: 760px;
+  }
+
+  section code:not(pre code) {
+    background: var(--blue-100);
+    color: var(--blue-900);
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-size: 0.88em;
+    font-family: "Consolas", "SFMono-Regular", Menlo, monospace;
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    margin-bottom: 6px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    min-width: 480px;
+  }
+
+  thead th {
+    background: var(--blue-900);
+    color: var(--white);
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--blue-100);
+    color: var(--text-dark);
+  }
+
+  tbody tr:nth-child(even) { background: var(--blue-50); }
+  tbody tr:hover { background: var(--blue-100); }
+
+  .cell-danger { color: var(--danger); font-weight: 700; }
+  .cell-muted { color: var(--text-muted); }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    color: #dbe9ff;
+    padding: 18px 20px;
+    border-radius: 12px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    font-family: "Consolas", "SFMono-Regular", Menlo, monospace;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    line-height: 1.55;
+  }
+
+  pre .cm { color: #7fa8d9; }
+  pre .kw { color: #82c4ff; }
+  pre .str { color: #a3e3a3; }
+
+  .code-label {
+    display: inline-block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--blue-700);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  /* Callouts */
+  .callout {
+    border-left: 4px solid var(--warn-border);
+    background: var(--warn-bg);
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: #7a4a00;
+    margin-bottom: 18px;
+  }
+
+  .callout strong { color: #5c3800; }
+
+  /* Cards grid (comparison / GPIO) */
+  .pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .pill {
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+    color: var(--blue-900);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+  }
+
+  .pill b { color: var(--blue-700); }
+
+  /* Tips list */
+  .tips { list-style: none; counter-reset: tip; }
+  .tips li {
+    counter-increment: tip;
+    position: relative;
+    padding: 12px 16px 12px 46px;
+    background: var(--blue-50);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 0.92rem;
+    color: var(--text-dark);
+  }
+  .tips li::before {
+    content: counter(tip);
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--blue-700);
+    color: var(--white);
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Reference links */
+  .ref-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 14px;
+  }
+
+  .ref-card {
+    display: block;
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.88rem;
+    color: var(--blue-700);
+    font-weight: 600;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .ref-card:hover { background: var(--blue-100); transform: translateY(-2px); }
+
+  footer {
+    background: #071e42;
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 26px;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .content { padding: 28px 20px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="brand-icon">🔧</span>
+    ESP8266 NodeMCU Docs
+  </div>
+  <a href="index.html" class="back">← กลับหน้าโปรโมทสินค้า</a>
+</div>
+
+<div class="layout">
+
+  <!-- Sidebar TOC -->
+  <aside class="sidebar">
+    <h5>เริ่มต้น</h5>
+    <ul>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#specs">Specifications</a></li>
+    </ul>
+    <h5>ฮาร์ดแวร์</h5>
+    <ul>
+      <li><a href="#pinmap">Pin Mapping</a></li>
+      <li><a href="#power">Power Supply</a></li>
+      <li><a href="#comm">Communication Interfaces</a></li>
+      <li><a href="#gpio">GPIO Capabilities</a></li>
+    </ul>
+    <h5>การพัฒนา</h5>
+    <ul>
+      <li><a href="#platformio">PlatformIO Config</a></li>
+      <li><a href="#arduino">Arduino IDE Settings</a></li>
+      <li><a href="#libraries">Essential Libraries</a></li>
+      <li><a href="#examples">Code Examples</a></li>
+    </ul>
+    <h5>เพิ่มเติม</h5>
+    <ul>
+      <li><a href="#pitfalls">Pitfalls & Tips</a></li>
+      <li><a href="#comparison">เทียบกับ ESP32</a></li>
+      <li><a href="#refs">Reference Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main content -->
+  <main class="content">
+
+    <div class="doc-hero">
+      <span class="badge">Reference Documentation</span>
+      <h1>ESP8266 NodeMCU Development Board</h1>
+      <p>บอร์ดพัฒนาโปรแกรมแบบ <strong>Open-source</strong> ที่ใช้ชิป <strong>ESP8266EX</strong> จาก Espressif Systems เหมาะสำหรับงาน IoT เนื่องจากมี Wi-Fi ในตัวและราคาถูก — เอกสารนี้รวบรวมสเปก การต่อขา การตั้งค่า และตัวอย่างโค้ดสำหรับใช้งานจริง</p>
+    </div>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p class="lead">NodeMCU เป็นบอร์ดยอดนิยมสำหรับผู้เริ่มต้นทำโปรเจกต์ IoT ด้วยจุดเด่นเรื่องราคาที่ถูก มี Wi-Fi ในตัว และรองรับทั้ง Arduino IDE และ PlatformIO</p>
+    </section>
+
+    <section id="specs">
+      <h2>Specifications</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>MCU</td><td>Espressif ESP8266EX</td></tr>
+            <tr><td>CPU Architecture</td><td>Tensilica L106 32-bit RISC</td></tr>
+            <tr><td>CPU Speed</td><td>80 MHz (overclock ได้ถึง 160 MHz)</td></tr>
+            <tr><td>Wi-Fi Standard</td><td>IEEE 802.11 b/g/n 2.4 GHz</td></tr>
+            <tr><td>Wi-Fi Modes</td><td>Station, Access Point, Station+AP</td></tr>
+            <tr><td>Operating Voltage</td><td>3.3 V (GPIO ทนได้สูงสุด 3.6 V)</td></tr>
+            <tr><td>Input Voltage (USB)</td><td>5 V (ผ่าน USB Type-Micro B)</td></tr>
+            <tr><td>Flash Memory</td><td>4 MB (บอร์ด NodeMCU ทั่วไป)</td></tr>
+            <tr><td>SRAM</td><td>64 KB instruction RAM + 96 KB data RAM</td></tr>
+            <tr><td>GPIO จำนวน</td><td>17 pins (ใช้งานได้จริง 11 pins)</td></tr>
+            <tr><td>ADC</td><td>1 ช่อง (A0) — 10-bit, 0–3.3 V ผ่าน voltage divider</td></tr>
+            <tr><td>PWM</td><td>ทุก GPIO (Software PWM)</td></tr>
+            <tr><td>UART</td><td>2 ช่อง (UART0 = TX/RX, UART1 = TX เท่านั้น)</td></tr>
+            <tr><td>SPI</td><td>1 ช่อง (SPI Master/Slave)</td></tr>
+            <tr><td>I2C</td><td>Software I2C (ใช้ได้ทุก GPIO)</td></tr>
+            <tr><td>USB-to-Serial</td><td>CH340G หรือ CP2102 (ขึ้นอยู่กับ batch)</td></tr>
+            <tr><td>Dimensions</td><td>49 × 26 mm (NodeMCU v2/v3)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="pinmap">
+      <h2>NodeMCU Pin Mapping</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pin</th><th>GPIO</th><th>Function / Notes</th></tr></thead>
+          <tbody>
+            <tr><td>D0</td><td>GPIO16</td><td>Wake from deep sleep (ต่อกับ RST), ไม่รองรับ PWM/I2C/interrupt</td></tr>
+            <tr><td>D1</td><td>GPIO5</td><td>I2C SCL (แนะนำ), PWM, Interrupt</td></tr>
+            <tr><td>D2</td><td>GPIO4</td><td>I2C SDA (แนะนำ), PWM, Interrupt</td></tr>
+            <tr><td>D3</td><td>GPIO0</td><td class="cell-danger">Boot mode select — ต้อง HIGH เพื่อ normal boot</td></tr>
+            <tr><td>D4</td><td>GPIO2</td><td class="cell-danger">Boot mode select — ต้อง HIGH; LED บอร์ด (active LOW)</td></tr>
+            <tr><td>D5</td><td>GPIO14</td><td>SPI CLK (HSCLK), PWM, Interrupt</td></tr>
+            <tr><td>D6</td><td>GPIO12</td><td>SPI MISO (HMISO), PWM, Interrupt</td></tr>
+            <tr><td>D7</td><td>GPIO13</td><td>SPI MOSI (HMOSI), PWM, Interrupt</td></tr>
+            <tr><td>D8</td><td>GPIO15</td><td class="cell-danger">SPI CS — ต้อง LOW เพื่อ normal boot</td></tr>
+            <tr><td>RX</td><td>GPIO3</td><td>UART0 RX</td></tr>
+            <tr><td>TX</td><td>GPIO1</td><td>UART0 TX, LED บอร์ด (active LOW)</td></tr>
+            <tr><td>A0</td><td>ADC0</td><td>Analog Input 0–3.3 V — ห้าม > 3.3 V</td></tr>
+            <tr><td>GND</td><td>GND</td><td class="cell-muted">Ground</td></tr>
+            <tr><td>3V3</td><td>3.3 V</td><td class="cell-muted">Power Output (AMS1117-3.3 LDO)</td></tr>
+            <tr><td>VIN / VU</td><td>5 V</td><td class="cell-muted">USB 5 V Output</td></tr>
+            <tr><td>RST</td><td>RESET</td><td class="cell-muted">Active LOW reset</td></tr>
+            <tr><td>EN</td><td>CH_PD</td><td>ต้อง HIGH เพื่อทำงานปกติ</td></tr>
+            <tr><td>SD3</td><td>GPIO10</td><td>ใช้งานได้บางส่วน (Flash SPI)</td></tr>
+            <tr><td>SD2</td><td>GPIO9</td><td>ใช้งานได้บางส่วน (Flash SPI)</td></tr>
+            <tr><td>CLK</td><td>GPIO6</td><td class="cell-danger">Flash SPI — ห้ามใช้</td></tr>
+            <tr><td>SD0</td><td>GPIO7</td><td class="cell-danger">Flash SPI — ห้ามใช้</td></tr>
+            <tr><td>SD1</td><td>GPIO8</td><td class="cell-danger">Flash SPI — ห้ามใช้</td></tr>
+            <tr><td>CMD</td><td>GPIO11</td><td class="cell-danger">Flash SPI — ห้ามใช้</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Boot Mode Summary</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>GPIO15 (D8)</th><th>GPIO0 (D3)</th><th>GPIO2 (D4)</th><th>Boot Mode</th></tr></thead>
+          <tbody>
+            <tr><td>LOW</td><td>HIGH</td><td>HIGH</td><td>Normal boot (Flash)</td></tr>
+            <tr><td>LOW</td><td>LOW</td><td>HIGH</td><td>Flash programming</td></tr>
+            <tr><td>HIGH</td><td>X</td><td>X</td><td>SD-card boot</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="power">
+      <h2>Power Supply</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>แหล่งจ่ายไฟ</th><th>วิธี</th><th>ข้อควรระวัง</th></tr></thead>
+          <tbody>
+            <tr><td>USB Micro-B</td><td>ต่อ USB จาก PC หรือ Adapter</td><td>วิธีปกติ ใช้อัปโหลดโปรแกรม</td></tr>
+            <tr><td>VIN pin (5 V)</td><td>ต่อแหล่งจ่าย 5 V ที่ pin VIN</td><td>ผ่าน LDO บนบอร์ด จ่ายสูงสุด ~600 mA</td></tr>
+            <tr><td>3V3 pin</td><td>ต่อแหล่งจ่าย 3.3 V</td><td class="cell-danger">Bypass LDO — ต้องเสถียรและจ่ายได้ > 500 mA</td></tr>
+            <tr><td>แบตเตอรี่ Li-Po</td><td>ผ่าน module charge + VIN</td><td>ควรใช้ TP4056 + diode ป้องกัน</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <strong>สำคัญ:</strong> ESP8266 ดึงกระแสสูงสุด ~300–400 mA ขณะ Wi-Fi transmit ควรใช้ decoupling capacitor 100 µF และ 100 nF ใกล้ pin 3V3
+      </div>
+    </section>
+
+    <section id="comm">
+      <h2>Communication Interfaces</h2>
+
+      <h3>UART (Serial)</h3>
+      <pre>UART0: TX = GPIO1 (D10/TX), RX = GPIO3 (D9/RX)  ← ใช้อัปโหลดและ Serial Monitor
+UART1: TX = GPIO2 (D4) เท่านั้น  ← ใช้ debug log ได้</pre>
+
+      <h3>I2C (Software)</h3>
+      <span class="code-label">C++</span>
+      <pre>// ค่า default ใน Wire library
+Wire.begin(SDA, SCL);  // SDA = GPIO4 (D2), SCL = GPIO5 (D1)</pre>
+      <p>ต้องใช้ pull-up resistor 4.7 kΩ ที่ SDA และ SCL ไปยัง 3.3 V</p>
+
+      <h3>SPI (Hardware)</h3>
+      <pre>MOSI = GPIO13 (D7)
+MISO = GPIO12 (D6)
+SCLK = GPIO14 (D5)
+CS   = GPIO15 (D8) หรือ GPIO ใดก็ได้</pre>
+
+      <h3>ADC</h3>
+      <span class="code-label">C++</span>
+      <pre>int value = analogRead(A0);  // คืนค่า 0–1023 (10-bit)
+float voltage = value * (3.3 / 1023.0);</pre>
+    </section>
+
+    <section id="platformio">
+      <h2>PlatformIO Configuration</h2>
+
+      <h3>platformio.ini — NodeMCU v2 / ESP-12E</h3>
+      <span class="code-label">ini</span>
+      <pre>[env:nodemcuv2]
+platform = espressif8266
+board = nodemcuv2
+framework = arduino
+monitor_speed = 115200
+upload_speed = 921600
+; upload_port = COM5    ; ระบุ port ถ้ามีหลาย device
+
+; Optional settings
+board_build.f_cpu = 80000000L       ; 80 MHz (หรือ 160000000L)
+board_build.f_flash = 40000000L     ; Flash frequency 40 MHz
+board_build.flash_mode = dout       ; Flash mode (dout แนะนำสำหรับ 4MB)
+build_flags =
+    -std=gnu++17                    ; C++17 (toolchain xtensa-lx106 GCC 10.3)</pre>
+
+      <h3>platformio.ini — NodeMCU v3 / LOLIN</h3>
+      <span class="code-label">ini</span>
+      <pre>[env:nodemcu]
+platform = espressif8266
+board = nodemcu
+framework = arduino
+monitor_speed = 115200</pre>
+    </section>
+
+    <section id="arduino">
+      <h2>Arduino IDE Settings</h2>
+      <div class="callout">ใช้ <strong>Arduino IDE 2.x</strong> (2.0+) ซึ่งเป็นเวอร์ชันปัจจุบัน — IDE 1.x ไม่ได้รับการพัฒนาต่อแล้ว</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Board</td><td>NodeMCU 1.0 (ESP-12E Module)</td></tr>
+            <tr><td>CPU Frequency</td><td>80 MHz (หรือ 160 MHz)</td></tr>
+            <tr><td>Flash Size</td><td>4MB (FS:2MB OTA:~1019KB)</td></tr>
+            <tr><td>Flash Frequency</td><td>40 MHz</td></tr>
+            <tr><td>Upload Speed</td><td>921600</td></tr>
+            <tr><td>Port</td><td>COMx (ขึ้นอยู่กับ Windows)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Board Manager URL</h3>
+      <pre>https://arduino.esp8266.com/stable/package_esp8266com_index.json</pre>
+    </section>
+
+    <section id="libraries">
+      <h2>Essential Libraries</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Library</th><th>ใช้งาน</th></tr></thead>
+          <tbody>
+            <tr><td>ESP8266WiFi</td><td>Wi-Fi connection (built-in)</td></tr>
+            <tr><td>ESP8266WebServer</td><td>HTTP Web Server (built-in)</td></tr>
+            <tr><td>ESP8266HTTPClient</td><td>HTTP Client (built-in)</td></tr>
+            <tr><td>ESP8266mDNS</td><td>mDNS / OTA (built-in)</td></tr>
+            <tr><td>ArduinoOTA</td><td>Over-The-Air update (built-in)</td></tr>
+            <tr><td>EEPROM</td><td>Non-volatile storage (built-in)</td></tr>
+            <tr><td>LittleFS</td><td>File system บน Flash (SPIFFS ถูกลบใน Core 3.x)</td></tr>
+            <tr><td>PubSubClient</td><td>MQTT client</td></tr>
+            <tr><td>ArduinoJson (v7)</td><td>JSON parsing (breaking changes จาก v6)</td></tr>
+            <tr><td>WiFiManager</td><td>Wi-Fi provisioning แบบ captive portal</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="examples">
+      <h2>Code Examples</h2>
+
+      <h3>Wi-Fi Connect</h3>
+      <span class="code-label">C++</span>
+      <pre>#include &lt;ESP8266WiFi.h&gt;
+
+const char* ssid     = "YOUR_SSID";
+const char* password = "YOUR_PASSWORD";
+
+void setup() {
+    Serial.begin(115200);
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("\nConnected! IP: " + WiFi.localIP().toString());
+}
+
+void loop() {}</pre>
+
+      <h3>Deep Sleep</h3>
+      <span class="code-label">C++</span>
+      <pre>// ต้องต่อ D0 (GPIO16) กับ RST
+ESP.deepSleep(10e6);  // sleep 10 วินาที (หน่วยเป็น microseconds)</pre>
+
+      <h3>OTA Update</h3>
+      <span class="code-label">C++</span>
+      <pre>#include &lt;ArduinoOTA.h&gt;
+
+void setup() {
+    // ... WiFi.begin() ...
+    ArduinoOTA.setHostname("my-esp8266");
+    ArduinoOTA.begin();
+}
+
+void loop() {
+    ArduinoOTA.handle();
+}</pre>
+    </section>
+
+    <section id="gpio">
+      <h2>GPIO Capabilities Summary</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Feature</th><th>รองรับ GPIO</th></tr></thead>
+          <tbody>
+            <tr><td>Digital I/O</td><td>ทุก GPIO (ยกเว้น 6–11)</td></tr>
+            <tr><td>PWM</td><td>ทุก GPIO ยกเว้น GPIO16</td></tr>
+            <tr><td>Interrupt</td><td>ทุก GPIO ยกเว้น GPIO16</td></tr>
+            <tr><td>I2C</td><td>ทุก GPIO (software)</td></tr>
+            <tr><td>SPI Hardware</td><td>GPIO12, 13, 14 (+ CS ใด ๆ)</td></tr>
+            <tr><td>ADC</td><td>A0 เท่านั้น</td></tr>
+            <tr><td>Deep Sleep Wake</td><td>GPIO16 → RST เท่านั้น</td></tr>
+            <tr><td>UART0</td><td>GPIO1 (TX), GPIO3 (RX)</td></tr>
+            <tr><td>UART1</td><td>GPIO2 (TX) เท่านั้น</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="pitfalls">
+      <h2>Common Pitfalls & Tips</h2>
+      <ol class="tips">
+        <li><b>GPIO6–11 ห้ามใช้</b> — ต่ออยู่กับ Flash SPI chip ภายใน</li>
+        <li><b>GPIO0, GPIO2, GPIO15</b> — มีผลต่อ boot mode อย่าดึง LOW ค้างตอนเปิดเครื่อง</li>
+        <li><b>GPIO16 (D0)</b> — ไม่รองรับ interrupt, PWM, I2C; ใช้ wake จาก deep sleep เท่านั้น</li>
+        <li><b>A0 voltage</b> — NodeMCU มี voltage divider (220 kΩ / 100 kΩ) รองรับ 0–3.3 V แต่ ESP8266 core รับได้แค่ 0–1 V</li>
+        <li><b>3.3 V logic</b> — GPIO ทนแรงดันสูงสุด 3.6 V ห้ามต่อ signal 5 V โดยตรง ต้องใช้ logic level converter</li>
+        <li><b>กระแสไฟ</b> — แต่ละ GPIO จ่ายได้สูงสุด 12 mA; รวมทุก GPIO ไม่เกิน 45 mA</li>
+        <li><b>Serial บน boot</b> — ESP8266 print garbage data ที่ 74880 baud ตอน boot ก่อน sketch เริ่ม</li>
+        <li><b>SPIFFS ถูกลบแล้ว</b> — ตั้งแต่ ESP8266 Arduino Core 3.x ให้ใช้ LittleFS แทนทั้งหมด</li>
+        <li><b>ArduinoJson v7</b> — API เปลี่ยนจาก v6 (ไม่มี <code>StaticJsonDocument</code>, ใช้ <code>JsonDocument</code> แทน)</li>
+      </ol>
+    </section>
+
+    <section id="comparison">
+      <h2>Comparison: ESP8266 vs ESP32 Family</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Feature</th><th>ESP8266</th><th>ESP32 (Classic)</th><th>ESP32-S3</th><th>ESP32-C3/C6</th></tr></thead>
+          <tbody>
+            <tr><td>CPU Cores</td><td>1</td><td>2 (Xtensa LX6)</td><td>2 (Xtensa LX7)</td><td>1 (RISC-V)</td></tr>
+            <tr><td>CPU Speed</td><td>80/160 MHz</td><td>240 MHz</td><td>240 MHz</td><td>160 MHz</td></tr>
+            <tr><td>RAM</td><td>~80 KB usable</td><td>~320 KB usable</td><td>~512 KB usable</td><td>~400 KB usable</td></tr>
+            <tr><td>GPIO</td><td>11 usable</td><td>34 usable</td><td>45 usable</td><td>22 usable</td></tr>
+            <tr><td>ADC Channels</td><td>1</td><td>18</td><td>20</td><td>6</td></tr>
+            <tr><td>Bluetooth</td><td>ไม่มี</td><td>BLE 4.2 + Classic</td><td>BLE 5.0</td><td>BLE 5.0</td></tr>
+            <tr><td>Wi-Fi 6 (802.11ax)</td><td>ไม่มี</td><td>ไม่มี</td><td>ไม่มี</td><td>C6 เท่านั้น</td></tr>
+            <tr><td>Thread / Zigbee</td><td>ไม่มี</td><td>ไม่มี</td><td>ไม่มี</td><td>C6/H2 เท่านั้น</td></tr>
+            <tr><td>DAC</td><td>ไม่มี</td><td>2 channels</td><td>2 channels</td><td>ไม่มี</td></tr>
+            <tr><td>USB-OTG</td><td>ไม่มี</td><td>ไม่มี</td><td>มี (native USB)</td><td>ไม่มี</td></tr>
+            <tr><td>Price</td><td>ถูกที่สุด</td><td>ปานกลาง</td><td>ปานกลาง-สูง</td><td>ปานกลาง</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="refs">
+      <h2>Reference Links</h2>
+      <div class="ref-grid">
+        <a class="ref-card" href="https://www.espressif.com/en/products/socs/esp8266" target="_blank" rel="noopener">Espressif ESP8266 Official ↗</a>
+        <a class="ref-card" href="https://arduino-esp8266.readthedocs.io/" target="_blank" rel="noopener">ESP8266 Arduino Core Docs ↗</a>
+        <a class="ref-card" href="https://github.com/nodemcu/nodemcu-devkit" target="_blank" rel="noopener">NodeMCU GitHub ↗</a>
+        <a class="ref-card" href="https://registry.platformio.org/platforms/platformio/espressif8266" target="_blank" rel="noopener">PlatformIO ESP8266 Platform ↗</a>
+        <a class="ref-card" href="https://www.esp8266.com/" target="_blank" rel="noopener">ESP8266 Community Forum ↗</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  &copy; 2026 ESP8266 NodeMCU Reference · แผนกเทคโนโลยีคอมพิวเตอร์ วิทยาลัยเทคนิคตรัง
+</footer>
+
+</body>
+</html>
