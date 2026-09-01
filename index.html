@@ -1,12 +1,550 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-<title>Project </title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เครื่องแสดงสภาพอากาศด้วย ESP32</title>
+<style>
+  :root {
+    --blue-900: #0b3d91;
+    --blue-700: #1565c0;
+    --blue-500: #2196f3;
+    --blue-100: #e3f2fd;
+    --blue-50: #f4faff;
+    --white: #ffffff;
+    --text-dark: #10233f;
+    --text-muted: #5c7290;
+    --shadow: 0 10px 30px rgba(21, 101, 192, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-dark);
+    background: var(--white);
+    line-height: 1.6;
+  }
+
+  a { text-decoration: none; color: inherit; }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Header */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--blue-100);
+  }
+
+  .nav-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--blue-900);
+  }
+
+  .logo-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-900));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1.1rem;
+  }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 32px;
+  }
+
+  nav a {
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+  }
+
+  nav a:hover { color: var(--blue-700); }
+
+  .nav-cta {
+    background: var(--blue-700);
+    color: var(--white) !important;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+
+  .nav-cta:hover { background: var(--blue-900); }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(180deg, var(--blue-50) 0%, var(--white) 100%);
+    padding: 90px 0 70px;
+  }
+
+  .hero .container {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .hero-text { flex: 1 1 420px; }
+
+  .badge {
+    display: inline-block;
+    background: var(--blue-100);
+    color: var(--blue-700);
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-size: 2.6rem;
+    line-height: 1.25;
+    color: var(--blue-900);
+    margin-bottom: 18px;
+  }
+
+  .hero p {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-bottom: 30px;
+    max-width: 520px;
+  }
+
+  .btn-group { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .btn-primary {
+    background: var(--blue-700);
+    color: var(--white);
+    padding: 14px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .btn-primary:hover { background: var(--blue-900); transform: translateY(-2px); }
+
+  .btn-secondary {
+    border: 2px solid var(--blue-500);
+    color: var(--blue-700);
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+  }
+
+  .btn-secondary:hover { background: var(--blue-100); }
+
+  .hero-visual {
+    flex: 1 1 360px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .device-card {
+    width: 100%;
+    max-width: 380px;
+    background: linear-gradient(160deg, var(--blue-700), var(--blue-900));
+    border-radius: 24px;
+    padding: 36px;
+    color: var(--white);
+    box-shadow: var(--shadow);
+  }
+
+  .device-card .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .device-card .value {
+    font-size: 2.4rem;
+    font-weight: 700;
+  }
+
+  .device-card .label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+  }
+
+  .device-card .stat {
+    background: rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 14px 18px;
+    flex: 1;
+    margin-right: 12px;
+  }
+
+  .device-card .stat:last-child { margin-right: 0; }
+
+  .stat-row { display: flex; }
+
+  /* Sections */
+  section { padding: 80px 0; }
+
+  .section-head {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 50px;
+  }
+
+  .section-head .badge { margin-bottom: 14px; }
+
+  .section-head h2 {
+    font-size: 2rem;
+    color: var(--blue-900);
+    margin-bottom: 12px;
+  }
+
+  .section-head p { color: var(--text-muted); }
+
+  /* Features section */
+  .features {
+    background: var(--blue-50);
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+
+  .feature-card {
+    background: var(--white);
+    border-radius: 18px;
+    padding: 32px 26px;
+    box-shadow: var(--shadow);
+    transition: transform 0.25s ease;
+  }
+
+  .feature-card:hover { transform: translateY(-6px); }
+
+  .feature-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: var(--blue-100);
+    color: var(--blue-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 18px;
+  }
+
+  .feature-card h3 {
+    color: var(--blue-900);
+    margin-bottom: 10px;
+    font-size: 1.15rem;
+  }
+
+  .feature-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+  /* How it works */
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+
+  .step-card {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .step-num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-900));
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin: 0 auto 16px;
+  }
+
+  .step-card h3 { color: var(--blue-900); margin-bottom: 10px; font-size: 1.1rem; }
+  .step-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+  /* About / project section */
+  .about {
+    background: var(--blue-900);
+    color: var(--white);
+  }
+
+  .about .container {
+    display: flex;
+    gap: 48px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .about-text { flex: 1 1 420px; }
+
+  .about h2 {
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+
+  .about p {
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 24px;
+  }
+
+  .info-card {
+    flex: 1 1 320px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    padding: 32px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    font-size: 0.95rem;
+  }
+
+  .info-row:last-child { border-bottom: none; }
+  .info-row span:first-child { color: rgba(255,255,255,0.65); }
+  .info-row span:last-child { font-weight: 600; }
+
+  /* Footer */
+  footer {
+    background: #071e42;
+    color: rgba(255,255,255,0.75);
+    padding: 50px 0 24px;
+  }
+
+  .footer-top {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+
+  .footer-brand .logo { color: var(--white); margin-bottom: 12px; }
+  .footer-brand p { max-width: 320px; font-size: 0.9rem; }
+
+  .footer-links h4 {
+    color: var(--white);
+    margin-bottom: 14px;
+    font-size: 0.95rem;
+  }
+
+  .footer-links ul { list-style: none; }
+  .footer-links li { margin-bottom: 10px; font-size: 0.9rem; }
+  .footer-links a:hover { color: var(--white); }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 22px;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 800px) {
+    nav ul { display: none; }
+    .feature-grid, .how-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2.1rem; }
+  }
+</style>
 </head>
 <body>
 
-<h1>My name is Anuwat </h1>
-<p>Tecnic computer</p>
+<header>
+  <div class="nav-wrap">
+    <div class="logo">
+      <span class="logo-icon">☁️</span>
+      WeatherESP
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#features">คุณสมบัติ</a></li>
+        <li><a href="#how">วิธีการทำงาน</a></li>
+        <li><a href="#about">เกี่ยวกับโครงงาน</a></li>
+      </ul>
+    </nav>
+    <a href="#about" class="nav-cta">ดูรายละเอียด</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-text">
+        <span class="badge">โครงงานนักศึกษา วิทยาลัยเทคนิคตรัง</span>
+        <h1>เครื่องแสดงสภาพอากาศด้วย ESP32</h1>
+        <p>อุปกรณ์ IoT ขนาดเล็กที่ตรวจวัดและแสดงผลอุณหภูมิ ความชื้น และสภาพอากาศแบบเรียลไทม์ เชื่อมต่อ WiFi ได้ทันที ใช้งานง่าย ราคาประหยัด เหมาะสำหรับบ้านและห้องเรียน</p>
+        <div class="btn-group">
+          <a href="#about" class="btn-primary">ดูรายละเอียดโครงงาน</a>
+          <a href="#features" class="btn-secondary">คุณสมบัติเด่น</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="device-card">
+          <div class="row">
+            <div class="label">สภาพอากาศวันนี้</div>
+            <div class="label">ESP32</div>
+          </div>
+          <div class="value">28.5°C</div>
+          <div class="label" style="margin-bottom: 22px;">ท้องฟ้าแจ่มใส</div>
+          <div class="stat-row">
+            <div class="stat">
+              <div class="label">ความชื้น</div>
+              <div style="font-size:1.3rem; font-weight:700;">64%</div>
+            </div>
+            <div class="stat">
+              <div class="label">แรงดัน</div>
+              <div style="font-size:1.3rem; font-weight:700;">1012 hPa</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge">คุณสมบัติเด่น</span>
+        <h2>ทำไมต้องเลือกอุปกรณ์นี้</h2>
+        <p>ออกแบบมาเพื่อใช้งานง่าย แม่นยำ และเชื่อมต่อได้ทุกที่</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🌡️</div>
+          <h3>วัดอุณหภูมิแม่นยำ</h3>
+          <p>เซนเซอร์คุณภาพสูงตรวจวัดอุณหภูมิและความชื้นได้แบบเรียลไทม์ ค่าความคลาดเคลื่อนต่ำ</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📶</div>
+          <h3>เชื่อมต่อ WiFi</h3>
+          <p>ส่งข้อมูลผ่านเครือข่าย WiFi ไปยังหน้าจอแสดงผลหรือแอปพลิเคชันได้ทันที ไม่ต้องต่อสาย</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>ประหยัดพลังงาน</h3>
+          <p>ใช้ชิป ESP32 ที่ประหยัดพลังงาน เหมาะสำหรับใช้งานต่อเนื่องตลอดวัน</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge">วิธีการทำงาน</span>
+        <h2>เริ่มใช้งานง่ายใน 3 ขั้นตอน</h2>
+        <p>ตั้งค่าเพียงครั้งเดียว ใช้งานได้ทันที</p>
+      </div>
+      <div class="how-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>เชื่อมต่ออุปกรณ์</h3>
+          <p>เสียบพลังงานและเชื่อมต่อบอร์ด ESP32 เข้ากับเครือข่าย WiFi ในบ้านของคุณ</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>ตรวจวัดข้อมูล</h3>
+          <p>เซนเซอร์เริ่มตรวจวัดอุณหภูมิ ความชื้น และความกดอากาศโดยอัตโนมัติ</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>แสดงผลแบบเรียลไทม์</h3>
+          <p>ข้อมูลสภาพอากาศแสดงผลบนหน้าจอทันที พร้อมอัปเดตอย่างต่อเนื่อง</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About project -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about-text">
+        <span class="badge" style="background: rgba(255,255,255,0.12); color: #ffffff;">เกี่ยวกับโครงงาน</span>
+        <h2>ข้อมูลโครงงาน</h2>
+        <p>โครงงานเครื่องแสดงสภาพอากาศด้วย ESP32 จัดทำขึ้นเพื่อศึกษาและประยุกต์ใช้เทคโนโลยี IoT ในการตรวจวัดและแสดงผลสภาพอากาศแบบเรียลไทม์ โดยนักศึกษาแผนกเทคโนโลยีคอมพิวเตอร์</p>
+      </div>
+      <div class="info-card">
+        <div class="info-row"><span>ชื่อโครงงาน</span><span>เครื่องแสดงสภาพอากาศด้วย ESP32</span></div>
+        <div class="info-row"><span>จัดทำโดย</span><span>นายอนุวัฒน์ สุชาโต</span></div>
+        <div class="info-row"><span>แผนก</span><span>เทคโนโลยีคอมพิวเตอร์</span></div>
+        <div class="info-row"><span>สถาบัน</span><span>วิทยาลัยเทคนิคตรัง</span></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-icon">☁️</span>
+          WeatherESP
+        </div>
+        <p>เครื่องแสดงสภาพอากาศด้วย ESP32 โครงงานนักศึกษาแผนกเทคโนโลยีคอมพิวเตอร์ วิทยาลัยเทคนิคตรัง</p>
+      </div>
+      <div class="footer-links">
+        <h4>เมนู</h4>
+        <ul>
+          <li><a href="#features">คุณสมบัติ</a></li>
+          <li><a href="#how">วิธีการทำงาน</a></li>
+          <li><a href="#about">เกี่ยวกับโครงงาน</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>ผู้จัดทำ</h4>
+        <ul>
+          <li>นายอนุวัฒน์ สุชาโต</li>
+          <li>แผนกเทคโนโลยีคอมพิวเตอร์</li>
+          <li>วิทยาลัยเทคนิคตรัง</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 โครงงานเครื่องแสดงสภาพอากาศด้วย ESP32 · วิทยาลัยเทคนิคตรัง
+    </div>
+  </div>
+</footer>
 
 </body>
 </html>
